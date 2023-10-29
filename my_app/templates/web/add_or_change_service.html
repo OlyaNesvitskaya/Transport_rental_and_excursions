@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="box">
+    <a href={{url_for('web.get_services_list')}}>Cancel</a>
+    <input type="submit" form="add_service" value="Save">
+</div>
+<div class="container2">
+    <form action="" method="post" id="add_service">
+
+        {{ context['form'].csrf_token }}
+        <div class="field">
+            {{ context['form'].name.label() }} {{ context['form'].name() }}
+        </div>
+
+        {% if context['form'].name.errors %}
+            <ul class="errors">
+            {% for error in context['form'].name.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="field">
+            {{ context['form'].description.label() }} {{ context['form'].description() }}
+        </div>
+
+        {% if context['form'].description.errors %}
+            <ul class="errors">
+            {% for error in context['form'].description.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="field">
+            {{ context['form'].unit.label() }} {{ context['form'].unit() }}
+        </div>
+
+        {% if context['form'].unit.errors %}
+            <ul class="errors">
+            {% for error in context['form'].unit.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="field">
+            {{ context['form'].price.label() }} {{ context['form'].price() }}
+        </div>
+
+        {% if context['form'].price.errors %}
+            <ul class="errors">
+            {% for error in context['form'].price.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+
+    </form>
+</div>
+{% endblock %}

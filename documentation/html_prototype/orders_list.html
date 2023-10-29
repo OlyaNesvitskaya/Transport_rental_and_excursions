@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+            background-image: url('static/app_background.png');
+        }
+
+        .heading{
+            background-color: #36322f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            color: white;
+            font-size: 20px;
+        }
+
+        .header{
+            border:2px groove;
+            height: 50px;
+        }
+
+        .topnav {
+            overflow: hidden;
+            background-color: #666;
+            float: left;
+        }
+
+        .topnav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #BEBEBE;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #0ffa28;
+            color: white;
+        }
+
+        .box{
+            margin-left: 850px;
+        }
+
+        .box a{
+            background-color: #0ffa28;
+            color: black;
+            border: 2px solid green;
+            text-align: center;
+            padding: 8px 40px;
+            width: 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin-left: 40px;
+            margin-top: 5px;
+            float: left;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        th, td {
+            padding: 15px;
+            border: groove;
+        }
+
+        th{
+            background-color: #75728f;
+        }
+
+       table{
+           display: flex;
+           justify-content: center;
+       }
+
+       tr:hover {background-color: #c9baa9;}
+
+       .container1{
+           display: flex;
+           flex-direction: row;
+           justify-content: center;
+           align-items: center;
+           height: 100px;
+       }
+
+       .container1 input{margin: 10px;}
+
+    </style>
+<title>Orders list</title>
+</head>
+<body>
+    <div class="heading">Orders list</div>
+    <div class="header">
+        <div class="topnav">
+            <a class="active" href="#">Orders</a>
+            <a href="#">Clients</a>
+            <a href="#">Services</a>
+        </div>
+        <div class="box">
+            <a href="#">Add</a>
+        </div>
+    </div>
+    <form>
+        <div class="container1">
+            <label for="calendar1">event date from:</label><input type="date" id="calendar1">
+            <label for="calendar2">by:</label><input type="date" id="calendar2">
+            <input type="image" src="static/update_sync_reload_reset_icon.png" value="Отправить" alt="Загрузить">
+        </div>
+    </form>
+    <table>
+       <tr>
+           <th>Order number</th>
+           <th>Order date</th>
+           <th>Client</th>
+           <th>Total price</th>
+           <th>Event_date</th>
+           <th>Actions</th>
+       </tr>
+       <tr><td>1</td><td><a href="">05/02/2023</a></td><td>Ivanov V.V.</td><td>700</td><td>10/02/2023</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>2</td><td><a href="">06/02/2023</a></td><td>Borisov B.B.</td><td>80</td><td>06/02/2023</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>3</td><td><a href="">06/02/2023</a></td><td>Egorov O.N.</td><td>350</td><td>08/02/2023</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>4</td><td><a href="">10/02/2023</a></td><td>Kushirenko I.I.</td><td>300</td><td>10/02/2023</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>5</td><td><a href="">10/02/2023</a></td><td>Krilov H.I.</td><td>700</td><td>10/02/2023</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>6</td><td><a href="">10/02/2023</a></td><td>Petrov.E.E.</td><td>450</td><td>10/02/2023</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+    </table>
+</body>
+</html>

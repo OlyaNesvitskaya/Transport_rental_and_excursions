@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="box">
+    <a href="{{url_for('web.get_clients_list')}}">Cancel</a>
+    <input type="submit" form="add_client" value="Save">
+</div>
+
+<form action="" method="post" id="add_client">
+    <div class="container2">
+
+        {{ context['form'].csrf_token }}
+        <div class="field">
+            {{ context['form'].name.label() }} {{ context['form'].name() }}
+            {% if context['form'].name.errors %}
+            <ul class="errors">
+                {% for error in context['form'].name.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+
+
+        <div class="field">
+            {{ context['form'].phone_number.label() }} {{ context['form'].phone_number() }}
+
+            {% if context['form'].phone_number.errors %}
+            <ul class="errors">
+                {% for error in context['form'].phone_number.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+
+
+        <div class="field">
+            {{ context['form'].email.label() }} {{ context['form'].email() }}
+
+            {% if context['form'].email.errors %}
+            <ul class="errors">
+                {% for error in context['form'].email.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+
+
+
+    </div>
+</form>
+{% endblock %}

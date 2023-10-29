@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+            background-image: url('static/app_background.png');
+        }
+
+        .heading{
+            background-color: #36322f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            color: white;
+            font-size: 20px;
+        }
+
+        .header{
+            border:2px groove;
+            height: 50px;
+        }
+
+        .topnav {
+            overflow: hidden;
+            background-color: #666;
+            float: left;
+        }
+
+        .topnav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #BEBEBE;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #0ffa28;
+            color: white;
+        }
+
+        .box{
+            margin-left: 850px;
+        }
+
+        .box a{
+            background-color: #0ffa28;
+            color: black;
+            border: 2px solid green;
+            text-align: center;
+            padding: 8px 40px;
+            width: 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin-left: 40px;
+            margin-top: 5px;
+            float: left;
+        }
+
+        .container3{
+           display: flex;
+           flex-direction: row;
+           justify-content: center;
+           align-items: center;
+           height: 100px;
+           font-weight: bold;
+        }
+
+        .container3 input{margin: 10px;}
+
+        .container4{
+           display: flex;
+           flex-direction: column;
+           flex-wrap: wrap;
+           align-content: center;
+           justify-content: center;
+       }
+
+        .container4 img{
+            border: 3px solid #ddd;
+            border-radius: 4px;
+            padding: 5px;
+            width: 25px;
+        }
+
+        .container4 input { margin: 10px;}
+
+        td {
+            text-align: center;
+        }
+
+        th, td {
+            padding: 5px 2px;
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        th{
+            background-color: #75728f;
+        }
+
+       tr:hover {background-color: #c9baa9;}
+
+       .container5{
+           font-weight: bold;
+           font-size: 20px;
+           font-style: italic;
+       }
+
+       .container5 span{
+           border: 2px groove gray;
+           padding:5px 10px;
+           color: green;
+       }
+
+    </style>
+<title>Add order</title>
+</head>
+<body>
+    <div class="heading">Add order</div>
+    <div class="header">
+        <div class="topnav">
+            <a class="active" href="#">Orders</a>
+            <a href="#">Clients</a>
+            <a href="#">Services</a>
+        </div>
+        <div class="box">
+            <a href="#">Cancel</a>
+            <a href="#">Save</a>
+        </div>
+    </div>
+    <form action="" method="post">
+        <div class="container3">
+            <label for="date">Date:</label><input type="date" id="date">
+            <label for="client">Client:</label><input type="text" id="client">
+        </div>
+        <div class="container4">
+            <div>
+                <img src="static/plus.svg" alt="Add new string" title="Add new line">
+                <img src="static/minus.svg" alt="Remove string" title="Remove chosen line">
+                <img src="static/close.svg" alt="Clear order" title="Clear order">
+            </div>
+            <table>
+                <tr>
+                    <th>Goods</th>
+                    <th>Number</th>
+                    <th>Unit</th>
+                    <th>Price</th>
+                    <th>Total price</th>
+                    <th>Event_date</th>
+                </tr>
+                <tr><td><input type="text" id="goods1"></td><td><input type="text" id="number1"></td><td><input type="text" id="unit1"></td><td><input type="text" id="price1"></td><td><input type="text" id="total_price1"></td><td><input type="date" id="event_date1"></td></tr>
+                <tr><td><input type="text" id="goods2"></td><td><input type="text" id="number2"></td><td><input type="text" id="unit2"></td><td><input type="text" id="price2"></td><td><input type="text" id="total_price2"></td><td><input type="date" id="event_date2"></td></tr>
+            </table>
+            <div class="container5"><p>Order total price:<span>0</span>UAN.</p></div>
+        </div>
+    </form>
+</body>
+</html>

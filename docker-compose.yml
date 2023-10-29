@@ -1,0 +1,53 @@
+version: '3'
+services:
+  db:
+    image: mysql
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'password'
+    volumes:
+      - ./rest_api/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - |
+          mysql -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} \
+          -e 'SHOW DATABASES LIKE "%db"' | \
+          [ $$(wc -l) -ge 2 ]
+      interval: 10s
+      timeout: 25s
+      retries: 3
+
+  api:
+    build: ./rest_api
+    container_name: rest_api
+    command: gunicorn --bind 0.0.0.0:5000 rest_api.wsgi:gunicorn_api
+    env_file:
+      - ./rest_api/.env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: curl --fail http://api:5000/api/clients || exit 1
+      interval: 10s
+      timeout: 25s
+      retries: 3
+
+
+  app:
+    build: ./my_app
+    container_name: app
+    command: gunicorn --bind 0.0.0.0:5009 my_app.wsgi:gunicorn_app
+    env_file:
+      - ./my_app/.env.docker
+    ports:
+      - "5009:5009"
+    depends_on:
+      api:
+        condition: service_healthy
+
+

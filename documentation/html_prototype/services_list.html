@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+            background-image: url('static/app_background.png');
+        }
+
+        .heading{
+            background-color: #36322f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            color: white;
+            font-size: 20px;
+        }
+
+        .header{
+            border:2px groove;
+            height: 50px;
+        }
+
+        .topnav {
+            overflow: hidden;
+            background-color: #666;
+            float: left;
+        }
+
+        .topnav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #BEBEBE;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #0ffa28;
+            color: white;
+        }
+
+        .box{
+            margin-left: 850px;
+        }
+
+        .box a{
+            background-color: #0ffa28;
+            color: black;
+            border: 2px solid green;
+            text-align: center;
+            padding: 8px 40px;
+            width: 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin-left: 40px;
+            margin-top: 5px;
+            float: left;
+        }
+
+        td {
+            text-align: center;
+        }
+
+        th, td {
+            padding: 15px;
+            border: groove;
+        }
+
+        th{
+            background-color: #75728f;
+        }
+
+       table{
+           display: flex;
+           justify-content: center;
+       }
+
+       tr:hover {background-color: #c9baa9;}
+
+       .container1{
+           display: flex;
+           flex-direction: row;
+           justify-content: center;
+           align-items: center;
+           height: 100px;
+       }
+
+       .container1 input{margin: 10px;}
+
+    </style>
+<title>Services list</title>
+</head>
+<body>
+    <div class="heading">Services list</div>
+    <div class="header">
+        <div class="topnav">
+            <a href="#">Orders</a>
+            <a href="#">Clients</a>
+            <a class="active" href="#">Services</a>
+        </div>
+        <div class="box">
+            <a href="#">Add</a>
+        </div>
+    </div>
+    <form>
+        <div class="container1">
+            <label for="num1">price from:</label><input type="number" id="num1">
+            <label for="num2">by:</label><input type="number" id="num2">
+            <input type="image" src="static/update_sync_reload_reset_icon.png" value="Отправить" alt="Загрузить">
+        </div>
+    </form>
+    <table>
+       <tr>
+           <th>Number</th>
+           <th>Name</th>
+           <th>Description</th>
+           <th>Unit</th>
+           <th>Price</th>
+           <th>Number of orders</th>
+           <th>Actions</th>
+       </tr>
+       <tr><td>1</td><td><a href="">Trip to Hoverla</a></td><td>Duration from 8 a.m.to 6 p.m. </td><td>person</td><td>350</td><td>42</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>2</td><td><a href="">Trip to Synevyr lake</a></td><td>Duration from 8 a.m.to 6 p.m. </td><td>person</td><td>300</td><td>20</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>3</td><td><a href="">Bicycle №5</a></td><td>№5</td><td>hour</td><td>40</td><td>58</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>4</td><td><a href="">Quad bike №1</a></td><td>№1</td><td>hour</td><td>100</td><td>10</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>5</td><td><a href="">Trip to Probiy Waterfall (Yaremche)</a></td><td>Duration from 8 a.m.to 6 p.m. </td><td>person</td><td>150</td><td>15</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+       <tr><td>6</td><td><a href="">Sauna</a></td><td>Aqua zone: swimming pool, waterfall</td><td>hour</td><td>80</td><td>12</td><td><a href="#">Edit</a>  <a href="#">Delete</a></td></tr>
+    </table>
+</body>
+</html>

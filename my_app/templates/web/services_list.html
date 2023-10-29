@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="box">
+    <a href="{{url_for('web.add_service')}}">Add</a>
+</div>
+<form action="{{url_for('web.get_services_list')}}">
+    <div class="container1">
+        <label for="price_1">price from:</label><input type="number" id="price_1" name="price_1">
+        <label for="price_2">by:</label><input type="number" id="price_2" name="price_2">
+        <input id='loading-button' type="image" src="static/images/loading_button.png" value="Отправить" alt="Загрузить">
+    </div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for  message in messages %}
+                <p class="flashes">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+</form>
+{% if context['items_list'] %}
+    <table>
+       <tr>
+           <th>Number</th>
+           <th>Name</th>
+           <th>Description</th>
+           <th>Unit</th>
+           <th>Price</th>
+           <th>Number of orders</th>
+           <th>Actions</th>
+       </tr>
+        {% for service in context['items_list'] %}
+            <tr>
+                <td>{{service['id']}}</td>
+                <td>{{service['name']}}</td>
+                <td>{{service['description']}}</td>
+                <td>{{service['unit']}}</td>
+                <td>{{service['price']}}</td>
+                <td>{{service['number_of_orders']}}</td>
+                <td><a href="{{url_for('web.edit_service', service_id=service['id'])}}">Edit</a> <a href="{{url_for('web.delete_service', service_id=service['id'])}}">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{{context['pagination'].links}}
+{% else %}
+    <p class="no-table">Services hasn't had yet (((</p>
+{% endif %}
+{% endblock %}

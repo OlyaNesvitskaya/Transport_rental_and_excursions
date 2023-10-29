@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+<!-- Exports header and navbar from header.html
+     or any file you want-->
+{% block title %}Page Not Found{% endblock %}
+{% block content %}
+
+{% if not context['error'] %}
+  <h1>Oops! Looks like the page doesn't exist.</h1>
+{% else %}
+    <h1>{{context['error']}}</h1>
+{% endif %}
+{% if context['main_page'] %}
+<a href="{{url_for('web.'+context['main_page'])}}"><p>Click Here</a>To go to the previous page</p>
+{% endif %}
+{% endblock %}

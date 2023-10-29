@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+            background-image: url('static/app_background.png');
+        }
+
+        .heading{
+            background-color: #36322f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 50px;
+            color: white;
+            font-size: 20px;
+        }
+
+        .header{
+            border:2px groove;
+            height: 50px;
+        }
+
+        .topnav {
+            overflow: hidden;
+            background-color: #666;
+            float: left;
+        }
+
+        .topnav a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        .topnav a:hover {
+            background-color: #BEBEBE;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: #0ffa28;
+            color: white;
+        }
+
+        .box{
+            margin-left: 850px;
+        }
+
+        .box a{
+            background-color: #0ffa28;
+            color: black;
+            border: 2px solid green;
+            text-align: center;
+            padding: 8px 40px;
+            width: 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            margin-left: 40px;
+            margin-top: 5px;
+            float: left;
+        }
+
+        .container2{
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             margin-top: 80px;
+        }
+
+        div.field{
+            padding-bottom: 5px;
+            margin: 15px;
+        }
+        div.field label{
+            display: block;
+            float: left;
+            width: 150px;
+            height: 15px;
+            font-weight: bolder;
+        }
+    </style>
+<title>Add client</title>
+</head>
+<body>
+    <div class="heading">Add client</div>
+    <div class="header">
+        <div class="topnav">
+            <a href="#">Orders</a>
+            <a class="active" href="#">Clients</a>
+            <a href="#">Services</a>
+        </div>
+        <div class="box">
+            <a href="#">Cancel</a>
+            <a href="#">Save</a>
+        </div>
+    </div>
+    <form action="" method="post">
+        <div class="container2">
+            <div class="field">
+                <label for="name">Name:</label><input type="text" id="name">
+            </div>
+            <div class="field">
+                <label for="number">Phone number:</label><input type="text" id="number">
+            </div>
+            <div class="field">
+                <label for="email">Email:</label>
+                <input type="text" id="email">
+            </div>
+        </div>
+    </form>
+</body>
+</html>

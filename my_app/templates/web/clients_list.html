@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="box">
+    <a href="{{url_for('web.add_client')}}">Add</a>
+</div>
+<form action="{{url_for('web.get_clients_list')}}">
+    <div class="container1">
+        <label for="date_1">date from:<input type="date" id="date_1" name="date_1"></label>
+        <label for="date_2">by:<input type="date" id="date_2" name="date_2"></label>
+        <input id='loading-button' type="image" src="static/images/loading_button.png" value="Отправить" alt="Загрузить">
+    </div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for  message in messages %}
+                <p class="flashes">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+</form>
+{% if context['items_list'] %}
+    <table>
+        <tr>
+           <th>Number</th>
+           <th>Name</th>
+           <th>Date</th>
+           <th>Phone number</th>
+           <th>Number of orders</th>
+           <th>Actions</th>
+        </tr>
+        {% for client in context['items_list'] %}
+            <tr>
+                <td>{{client['id']}}</td>
+                <td>{{client['name']}}</td>
+                <td>{{client['created_date']}}</td>
+                <td>{{client['phone_number']}}</td>
+                <td>{{client['number_of_orders']}}</td>
+                <td><a href="{{url_for('web.edit_client', client_id=client['id'])}}">Edit</a>  <a href="{{url_for('web.delete_client', client_id=client['id'])}}">Delete</a></td>
+            </tr>
+        {% endfor %}
+
+    </table>
+{{context['pagination'].links}}
+{% else %}
+    <p class="no-table">Clients hasn't had yet (((</p>
+{% endif %}
+{% endblock %}

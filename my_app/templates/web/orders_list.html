@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="box">
+    <a href="{{url_for('web.add_order')}}">Add</a>
+</div>
+<form action="{{url_for('web.get_orders_list')}}">
+    <div class="container1">
+        <label for="date_1">date from:<input type="date" id="date_1" name="date_1"></label>
+        <label for="date_2">by:<input type="date" id="date_2" name="date_2"></label>
+        <input id='loading-button' type="image" src="static/images/loading_button.png" value="Отправить" alt="Загрузить">
+    </div>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for  message in messages %}
+                <p class="flashes">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+</form>
+{% if context['items_list'] %}
+    <table>
+        <tr>
+           <th>Order number</th>
+           <th>Order date</th>
+           <th>Client name</th>
+           <th>Total price</th>
+           <th>Actions</th>
+        </tr>
+        {% for order in context['items_list'] %}
+            <tr>
+                <td>{{order['id']}}</td>
+                <td>{{order['created_date']}}</td>
+                <td>{{order['client_name']}}</td>
+                <td>{{order['total_price']}}</td>
+                <td><a href="{{url_for('web.edit_order', order_id=order['id'])}}">Edit</a>  <a href="{{url_for('web.delete_order', order_id=order['id'])}}">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{{context['pagination'].links}}
+{% else %}
+    <p class="no-table">Orders hasn't had yet (((</p>
+{% endif %}
+{% endblock %}
