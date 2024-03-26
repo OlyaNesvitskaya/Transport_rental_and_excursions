@@ -1,48 +1,43 @@
 import datetime
 from json import JSONEncoder, dumps, loads
 from flask import render_template, request, url_for, redirect, flash, Blueprint, jsonify
-from flask_paginate import Pagination, get_page_args
+from flask_paginate import Pagination
+
 from my_app.views.forms import AddClientForm, AddServiceForm, OrderFormSet, AddOrderForm
 from my_app.views.requests_to_api import *
 
 web_app = Blueprint('web', __name__, url_prefix='/my_app')
 
 
-def get_page_data(data: list, offset: int = 0, per_page: int = 3) -> list:
-    """select data on specified prices.
-
-    Keyword arguments:
-    data -- list of data;
-    offset-- start index;
-    per_page -- number of items per page.
-    """
-    return data[offset:offset+per_page]
-
-
-def get_pagination_items(items_list):
-    page, per_page, offset = get_page_args(page_parameter="page", per_page_parameter="per_page")
-    total = len(items_list)
-    items_list = get_page_data(data=items_list, offset=offset, per_page=10)
-    pagination = Pagination(page=page, per_page=per_page, total=total)
-    return {'items_list': items_list, 'page': page, 'per_page': per_page, 'pagination': pagination}
+@web_app.context_processor
+def inject_today_date():
+    return {'today_date': datetime.date.today()}
 
 
 @web_app.route("/clients")
 def get_clients_list():
-    date_1 = request.args.get("date_1") or None
-    date_2 = request.args.get("date_2") or None
-    if date_1 is None and date_2 is None:
-        response = get_list_of_items('/clients')
+    date_from = request.args.get("date_from") or None
+    date_by = request.args.get("date_by") or None
+    page = request.args.get("page", 1)
+
+    if date_from is None and date_by is None:
+        response = get_list_of_items(f'/clients?page={page}')
     else:
-        payload = {'date_1': date_1, 'date_2': date_2}
+        payload = {'date_from': date_from, 'date_by': date_by, 'page': page}
         response = get_list_of_filtering_items('/clients_filtering', payload)
+
         if response.status_code != 200:
-            flash(response.json().get('error'))
+            flash(response.json().get('message'), 'message_failure')
             return redirect(url_for('web.get_clients_list'))
-    clients_list = response.json()
-    pagination_items = get_pagination_items(clients_list)
-    context = {'title': 'clients', 'heading': 'Clients list'}
-    context.update(pagination_items)
+
+    clients = response.json()
+    pagination = Pagination(page=clients['page'],
+                            per_page=clients['per_page'],
+                            total=clients['total'])
+
+    context = {'title': 'clients', 'heading': 'Clients list',
+               'items_list': clients['items'], 'pagination': pagination, 'page': page}
+
     return render_template('clients_list.html', context=context)
 
 
@@ -50,7 +45,6 @@ def get_clients_list():
 def add_client():
     form = AddClientForm()
     if form.validate_on_submit():
-
         data = {'name': form.name.data,
                 'phone_number': form.phone_number.data,
                 'email': form.email.data}
@@ -58,10 +52,12 @@ def add_client():
         response = create_item('/clients', json=data)
         if response.status_code == 201:
             message = response.json().get('message')
-            context = {'title': 'success', 'message': message, 'main_page': 'get_clients_list'}
-            return render_template('success.html', context=context)
+            flash(message, 'message_success')
+            return redirect(url_for('web.get_clients_list'))
+
         form = AddClientForm(data=data)
-        form.phone_number.errors = [response.json().get('error')]
+        form.phone_number.errors = [response.json().get('message')]
+
     context = {'title': 'add_client', 'form': form, 'heading': 'Add client'}
     return render_template('add_or_change_client.html', context=context)
 
@@ -86,43 +82,51 @@ def edit_client(client_id):
         response = update_item(f'/client/{client_id}', json=data)
         if response.status_code == 201:
             message = response.json().get('message')
-            context = {'title': 'success', 'message': message, 'heading': 'Edit client', 'main_page': 'get_clients_list'}
-            return render_template('success.html', context=context)
+            flash(message, 'message_success')
+            return redirect(url_for('web.get_clients_list'))
+
         form = AddClientForm(data=data)
-        form.phone_number.errors = [response.json().get('error')]
+        form.phone_number.errors = [response.json().get('message')]
     context = {'title': 'edit_client', 'form': form, 'heading': 'Edit client'}
     return render_template('add_or_change_client.html', context=context)
 
 
-@web_app.route('/delete_client/<client_id>', methods=['GET'])
-def delete_client(client_id):
+@web_app.route('/delete_client/<client_id><page>')
+def delete_client(client_id, page):
     response = delete_item(f'/client/{client_id}')
+
     if response.status_code == 204:
-        context = {'title': 'success', 'heading': 'Delete client',
-                   'message': f'Record  with id={client_id} deleted successfully', 'main_page': 'get_clients_list'}
-        return render_template('success.html', context=context)
-    error = response.json().get('error')
-    context = {'title': 'delete_service', 'heading': 'Delete service', 'main_page': 'get_clients_list'}
-    if error:
-        context['error'] = error
-    return render_template('404.html', context=context)
+        flash('Client deleted successfully', 'message_success')
+    else:
+        message = response.json().get('message')
+        flash(message, 'message_failure')
+    return redirect(url_for('web.get_clients_list', page=page))
 
 
 @web_app.route("/services")
 def get_services_list():
-    price_1 = request.args.get('price_1') or None
-    price_2 = request.args.get('price_2') or None
-    if price_1 is None and price_2 is None:
-        response = get_list_of_items('/services')
+    price_from = request.args.get('price_from')
+    price_by = request.args.get('price_by')
+    page = request.args.get('page', 1)
+
+    if price_from is None and price_by is None:
+        response = get_list_of_items(f'/services?page={page}')
     else:
-        response = get_list_of_filtering_items('/services_filtering', {'price_1': price_1, 'price_2': price_2})
+        response = get_list_of_filtering_items(
+            '/services_filtering', {'price_from': price_from, 'price_by': price_by, 'page': page})
+
         if response.status_code != 200:
-            flash(response.json().get('error'))
+            flash(response.json().get('message'), 'message_failure')
             return redirect(url_for('web.get_services_list'))
-    services_list = response.json()
-    pagination_items = get_pagination_items(services_list)
-    context = {'title': 'services', 'heading': 'Services list'}
-    context.update(pagination_items)
+
+    services = response.json()
+    pagination = Pagination(page=services['page'],
+                            per_page=services['per_page'],
+                            total=services['total'])
+
+    context = {'title': 'services', 'heading': 'Services list',
+               'items_list': services['items'], 'pagination': pagination, 'page': page}
+
     return render_template('services_list.html', context=context)
 
 
@@ -137,12 +141,12 @@ def add_service():
         response = create_item('/services', json=data)
         if response.status_code == 201:
             message = response.json().get('message')
-            context = {'title': 'success', 'heading': 'Add service', 'message': message,
-                       'main_page': 'get_services_list'}
-            return render_template('success.html', context=context)
+            flash(message, 'message_success')
+            return redirect(url_for('web.get_services_list'))
 
         form = AddServiceForm(data=data)
-        form.name.errors = [response.json().get('error')]
+        form.name.errors = [response.json().get('message')]
+
     context = {'title': 'add_service', 'form': form, 'heading': 'Add service'}
     return render_template('add_or_change_service.html', context=context)
 
@@ -158,6 +162,7 @@ def edit_service(service_id):
             return render_template('add_or_change_service.html', context=context)
         context = {'title': 'edit_service', 'heading': 'Edit service', 'main_page': 'get_services_list'}
         return render_template('404.html', context=context)
+
     form = AddServiceForm()
     if form.validate_on_submit():
         data = {'name': form.name.data, 'description': form.description.data,
@@ -165,46 +170,50 @@ def edit_service(service_id):
         response = update_item(f'/service/{service_id}', json=data)
         if response.status_code == 201:
             message = response.json().get('message')
-            context = {'title': 'success', 'heading': 'Edit service', 'message': message,
-                       'main_page': 'get_services_list'}
-            return render_template('success.html', context=context)
+            flash(message, 'message_success')
+            return redirect(url_for('web.get_services_list'))
 
         form = AddServiceForm(data=data)
-        form.name.errors = [response.json().get('error')]
+        form.name.errors = [response.json().get('message')]
     context = {'title': 'edit_service', 'heading': 'Edit service', 'form': form}
     return render_template('add_or_change_service.html', context=context)
 
 
-@web_app.route('/delete_service/<service_id>', methods=['GET'])
-def delete_service(service_id):
+@web_app.route('/delete_service/<service_id><page>')
+def delete_service(service_id, page):
     response = delete_item(f'/service/{service_id}')
+
     if response.status_code == 204:
-        context = {'title': 'success', 'heading': 'Delete service', 'main_page': 'get_services_list',
-                   'message': f'Record  with id={service_id} deleted successfully'}
-        return render_template('success.html', title='success', context=context)
-    error = response.json().get('error')
-    context = {'title': 'delete_service', 'heading': 'Delete service', 'main_page': 'get_services_list'}
-    if error:
-        context['error'] = error
-    return render_template('404.html', context=context)
+        flash('Service deleted successfully', 'message_success')
+    else:
+        message = response.json().get('message')
+        flash(message, 'message_failure')
+    return redirect(url_for('web.get_services_list', page=page))
 
 
 @web_app.route("/orders")
 def get_orders_list():
-    date_1 = request.args.get('date_1') or None
-    date_2 = request.args.get('date_2') or None
-    if date_1 is None and date_2 is None:
-        response = get_list_of_items('/orders')
+    date_from = request.args.get('date_from') or None
+    date_by = request.args.get('date_by') or None
+    page = request.args.get('page', 1)
+
+    if date_from is None and date_by is None:
+        response = get_list_of_items(f'/orders?page={page}')
     else:
-        payload = {'date_1': date_1, 'date_2': date_2}
+        payload = {'date_from': date_from, 'date_by': date_by, 'page': page}
         response = get_list_of_filtering_items('/orders_filtering', payload)
+
         if response.status_code != 200:
-            flash(response.json().get('error'))
+            flash(response.json().get('message'), 'message_failure')
             return redirect(url_for('web.get_orders_list'))
-    orders_list = response.json()
-    pagination_items = get_pagination_items(orders_list)
-    context = {'title': 'orders', 'heading': 'Orders list'}
-    context.update(pagination_items)
+    orders = response.json()
+    pagination = Pagination(page=orders['page'],
+                            per_page=orders['per_page'],
+                            total=orders['total'])
+
+    context = {'title': 'orders', 'heading': 'Orders list',
+               'items_list': orders['items'], 'pagination': pagination, 'page': page}
+
     return render_template('orders_list.html', context=context)
 
 
@@ -214,84 +223,116 @@ class CustomJSONEncoder(JSONEncoder):
             return o.isoformat()
 
 
+def fill_select_fields_in_order_form(form):
+    service_id_choices = list(map(
+        lambda service: (service.get('id'), service.get('name')),
+        get_list_of_items('/services/names').json()))
+
+    client_id_choices = list(map(
+        lambda client: (client.get('id'), client.get('phone_number')),
+        get_list_of_items('/clients/phones').json()))
+
+    form.client_id.choices = client_id_choices
+
+    for sub_form in form.order_line:
+        sub_form.service_id.choices.extend(service_id_choices)
+
+    return form, service_id_choices
+
+
 @web_app.route('/add_order', methods=['GET', 'POST'])
 def add_order():
     form = OrderFormSet()
-    service_id_choices = [(i.get('id'), i.get('name'))
-                          for i in get_list_of_items('/services').json()]
-    client_id_choices = [(i.get('id'), i.get('phone_number'))
-                         for i in get_list_of_items('/clients').json()]
-    form.client_id.choices = client_id_choices
-    for sub_form in form.order_line:
-        sub_form.service_id.choices = service_id_choices
-    result = get_unit_and_price_for_service(service_id_choices[0][0])
+    form, service_id_choices = fill_select_fields_in_order_form(form)
 
     AddOrderForm.Meta.created_date = form.created_date.data
     if form.is_submitted() and form.order_line.validate(AddOrderForm):
         payloads = {'created_date': form.created_date.data,
-                    'client_id': form.client_id.data, 'services': form.order_line.data}
+                    'client_id': form.client_id.data, 'order_lines': form.order_line.data}
         response = create_item('/orders', data=dumps(payloads, cls=CustomJSONEncoder))
+
         if response.status_code == 201:
             message = response.json().get('message')
-            context = {'title': 'success', 'message': message, 'heading': 'Add order', 'main_page': 'get_orders_list'}
-            return render_template('success.html', context=context)
+            flash(message, 'message_success')
+            return redirect(url_for('web.get_orders_list'))
+        else:
+            flash(response.json().get('message'), 'message_failure')
+    else:
+        [flash(line, 'message_failure') for line in form.errors.get('order_line', '') if len(line) != 0]
 
-    script_url_without_parameter = request.url_root + 'my_app/unit_and_price/'
-
-    context = {'title': 'add_order', 'form': form, 'unit': str(result.get('unit', 0)),
-               'service_id': service_id_choices[0][0], 'price': result.get('price', 0),
-               'heading': 'Add order', 'script_url_without_parameter': script_url_without_parameter}
+    context = {'title': 'add_order', 'form': form, 'heading': 'Add order',
+               'add_line': True}
     return render_template('add_or_edit_order.html', context=context)
 
 
 def object_hook(obj):
     date_field = "event_date" if "event_date" in obj else "created_date" if "created_date" in obj else None
-    obj[date_field] = datetime.datetime.strptime(obj[date_field], '%Y-%m-%d')
+    obj[date_field] = datetime.datetime.strptime(obj[date_field], '%Y-%m-%d').date()
     return obj
 
 
-@web_app.route('/edit_order/<order_id>', methods=['GET', 'POST'])
-def edit_order(order_id):
+@web_app.route('/edit_order/<order_id>', methods=['GET'])
+def edit_order_get(order_id):
     form = OrderFormSet()
-    service_id_choices = [(i.get('id'), i.get('name')) for i in get_list_of_items('/services').json()]
-    client_id_choices = [(i.get('id'), i.get('phone_number')) for i in get_list_of_items('/clients').json()]
-    form.client_id.choices = client_id_choices
-    service_id = service_id_choices[0][0]
-    result = get_unit_and_price_for_service(service_id)
-    script_url_without_parameter = request.url_root + 'my_app/unit_and_price/'
-    for sub_form in form.order_line:
-        sub_form.service_id.choices = service_id_choices
-    if request.method == 'GET':
-        form.order_line.pop_entry()
-        response = get_item(f'/order/{order_id}')
-        if response.status_code == 200:
-            order = loads(response.text, object_hook=object_hook)
-            for order_line in order.get('order_lines'):
-                order_line.update(get_unit_and_price_for_service(order_line.get('service_id')))
-                form.order_line.append_entry(order_line)
-                for sub_form in form.order_line:
-                    sub_form.service_id.choices = service_id_choices
-            form.created_date.data = order.get('created_date')
-            form.client_id.data = str(order.get('client_id'))
-            form.client_id.choices = client_id_choices
-            context = {'title': 'edit_order', 'form': form, 'unit': str(result.get('unit', 0)),
-                       'service_id': service_id, 'price': result.get('price', 0), 'heading': 'Edit order',
-                       'client_id': order.get('client_id'), 'script_url_without_parameter': script_url_without_parameter}
-            return render_template('add_or_edit_order.html', context=context)
-        context = {'title': 'edit_order', 'heading': 'Edit order', 'main_page': 'get_orders_list'}
-        return render_template('404.html', context=context)
+    form, service_id_choices = fill_select_fields_in_order_form(form)
+
+    form.order_line.pop_entry()
+    response = get_item(f'/order/{order_id}')
+
+    if response.status_code == 200:
+        order = loads(response.text, object_hook=object_hook)
+
+        dates_of_services_not_yet_performed = []
+
+        for index, order_line in enumerate(order.get('order_lines')):
+            order_line.update(get_unit_and_price_for_service(order_line.get('service_id')))
+            form.order_line.append_entry(order_line)
+
+            if order_line.get('event_date') < datetime.date.today():
+
+                form.order_line.entries[index].form.quantity.render_kw = {'readonly': True}
+                form.order_line.entries[index].form.event_date.render_kw = {'readonly': True}
+                form.order_line.entries[index].form.service_id.render_kw = {'class': 'order-read-only-field'}
+            else:
+                dates_of_services_not_yet_performed.append(order_line.get('event_date'))
+
+            for sub_form in form.order_line:
+                sub_form.service_id.choices.extend(service_id_choices)
+
+        form.created_date.data = order.get('created_date')
+        form.created_date.render_kw = {'readonly': True}
+        form.client_id.data = str(order.get('client_id'))
+
+        context = {'title': 'edit_order', 'form': form, 'heading': 'Edit order',
+                   'client_id': order.get('client_id'),
+                   'add_line': len(dates_of_services_not_yet_performed) > 0}
+
+        return render_template('add_or_edit_order.html', context=context)
+
+    context = {'title': 'edit_order', 'heading': 'Edit order', 'main_page': 'get_orders_list'}
+    return render_template('404.html', context=context)
+
+
+@web_app.route('/edit_order/<order_id>', methods=['POST'])
+def edit_order_post(order_id):
+    form = OrderFormSet()
+    form, service_id_choices = fill_select_fields_in_order_form(form)
 
     AddOrderForm.Meta.created_date = form.created_date.data
     if form.is_submitted() and form.order_line.validate(AddOrderForm):
         payload = {'created_date': form.created_date.data, 'client_id': form.client_id.data,
-                   'services': form.order_line.data}
+                   'order_lines': form.order_line.data}
         response = update_item(f'/order/{order_id}', data=dumps(payload, cls=CustomJSONEncoder))
 
         if response.status_code == 201:
             message = response.json().get('message')
-            context = {'title': 'success', 'message': message, 'heading': 'Edit order', 'main_page': 'get_orders_list'}
-            return render_template('success.html', context=context)
-    context = {'title': 'edit_order', 'form': form, 'heading': 'Edit order'}
+            flash(message, 'message_success')
+            return redirect(url_for('web.get_orders_list'))
+    else:
+        [flash(line, 'message_failure') for line in form.errors.get('order_line', '') if len(line) != 0]
+
+    context = {'title': 'edit_order', 'form': form, 'heading': 'Edit order',
+               'add_line': form.created_date.data >= datetime.date.today()}
     return render_template('add_or_edit_order.html', context=context)
 
 
@@ -307,17 +348,12 @@ def get_unit_and_price_for_js_order_line(service_id):
     return jsonify({'unit': {'unit': result.get('unit')}, 'price': {'price': result.get('price')}})
 
 
-@web_app.route('/delete_order/<order_id>')
-def delete_order(order_id):
+@web_app.route('/delete_order/<order_id><page>')
+def delete_order(order_id, page):
     response = delete_item(f'/order/{order_id}')
     if response.status_code == 204:
-        context = {'title': 'success',
-                   'heading': 'Delete order',
-                   'message': f'Record  with id={order_id} deleted successfully', 'main_page': 'get_orders_list'}
-        return render_template('success.html', context=context)
-    context = {'title': 'delete_order', 'heading': 'Delete order', 'main_page': 'get_orders_list'}
-    return render_template('404.html', context=context)
-
-
-
-
+        flash('Order deleted successfully', 'message_success')
+    else:
+        message = response.json().get('message')
+        flash(message, 'message_failure')
+    return redirect(url_for('web.get_orders_list', page=page))

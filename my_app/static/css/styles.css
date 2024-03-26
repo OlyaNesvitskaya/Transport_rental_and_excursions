@@ -6,8 +6,9 @@
 html,
 body {
   height: 100%;
-
+  background-image: url('../images/app_background.png');
 }
+
 .wrapper {
   position: relative;
   min-height: 100%;
@@ -178,7 +179,7 @@ div.field input{
 .container3{
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: baseline;
     height: 80px;
 }
 
@@ -230,4 +231,55 @@ div.field input{
 
 .errors{
     margin-top: 10px;
-    color: red;}
+    margin-left: 50px;
+    color: red;
+    list-style-type: none;
+}
+
+#description{width: 400px; height:100px;}
+
+.service_id{width: 25ch;}
+
+#remove-order-line-disabled {
+    z-index: 1000;
+    background-color: lightgrey;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.order-read-only-field {
+   cursor: not-allowed;
+   pointer-events: none;
+   width: 25ch;
+}
+
+#delete-item {
+    color: #007bff;
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+#message_failure {
+  padding: 8px;
+  border: 1px solid #d6e9c6;
+  border-radius: 4px;
+  color: black;
+  background-color: red;
+}
+
+#message_success {
+  padding: 8px;
+  border: 1px solid #d6e9c6;
+  border-radius: 4px;
+  color: black;
+  background-color: #4abd5f;
+}
+
+#close_message {
+    margin-right: 40px;
+    float:right;
+    font-weight: bold;
+    color: black;
+    cursor: pointer;
+}

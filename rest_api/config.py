@@ -7,7 +7,7 @@ class Config:
     FLASK_DEBUG = False
     TESTING = False
     url = environ.get('DATABASE_URL') or f"{environ.get('host')}:{environ.get('port')}"
-    SECRET_KEY = urandom(32)
+    SECRET_KEY = urandom(32).hex()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PROPAGATE_EXCEPTIONS = True
 

@@ -6,7 +6,7 @@ load_dotenv()
 class Config:
     FLASK_DEBUG = False
     TESTING = False
-    SECRET_KEY = urandom(32)
+    SECRET_KEY = urandom(32).hex()
 
 
 class DevelopmentConfig(Config):

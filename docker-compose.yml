@@ -41,7 +41,7 @@ services:
   app:
     build: ./my_app
     container_name: app
-    command: gunicorn --bind 0.0.0.0:5009 my_app.wsgi:gunicorn_app
+    command: gunicorn --bind 0.0.0.0:5009 my_app.wsgi:gunicorn_app --certfile ./my_app/certs/cert.pem --keyfile ./my_app/certs/key.pem
     env_file:
       - ./my_app/.env.docker
     ports:

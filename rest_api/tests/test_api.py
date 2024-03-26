@@ -2,7 +2,7 @@ import pytest
 from datetime import date, timedelta
 from sqlalchemy.sql import text
 from rest_api.models.models import Client, Service, Order, Order_line
-from rest_api.app import db, create_app
+from rest_api.api import db, create_app
 import rest_api.config as config
 
 
@@ -77,7 +77,7 @@ def new_order():
     return {'model': Order, 'path': '/orders', 'payload':
             {
              "client_id": 1,
-             "services": [
+             "order_lines": [
                  {
                      "service_id": 1,
                      "quantity": 1,
@@ -95,6 +95,7 @@ def test_incorrect_resource(client):
 @pytest.mark.parametrize('new_item', [new_client(), new_service(), new_order()])
 def test_create_item(app, client, new_item):
     create_item_response = client.post(f'/api{new_item["path"]}', json=new_item['payload'])
+
     assert create_item_response.status_code == 201
 
     with app.app_context():
@@ -107,18 +108,18 @@ def test_create_item(app, client, new_item):
             if i == 'created_date':
                 formatted_event_date = exist_item.__getattribute__(i).strftime("%Y-%m-%d")
                 assert formatted_event_date == new_item['payload'][i]
-            elif i != 'services':
+            elif i != 'order_lines':
                 assert exist_item.__getattribute__(i) == new_item['payload'][i]
             else:
                 query = db.select(Order_line).where(Order_line.order_id == 2)
                 order_line = db.session.execute(query).scalars().all()
-                for ind in range(len(new_item['payload']['services'])):
-                    for key in new_item['payload']['services'][ind].keys():
+                for ind in range(len(new_item['payload']['order_lines'])):
+                    for key in new_item['payload']['order_lines'][ind].keys():
                         if key == 'event_date':
                             formatted_event_date = order_line[ind].__getattribute__(key).strftime("%Y-%m-%d")
-                            assert formatted_event_date == new_item['payload']['services'][ind][key]
+                            assert formatted_event_date == new_item['payload']['order_lines'][ind][key]
                         else:
-                            assert order_line[ind].__getattribute__(key) == new_item['payload']['services'][ind][key]
+                            assert order_line[ind].__getattribute__(key) == new_item['payload']['order_lines'][ind][key]
 
 
 def test_update_client(app, client):
@@ -138,7 +139,7 @@ def test_update_service(app, client):
 
 
 def test_update_order(app, client):
-    payload = {"client_id": 1, "services": [{"service_id": 1, "quantity": 20, "event_date": get_current_date()}]}
+    payload = {"client_id": 1, "order_lines": [{"service_id": 1, "quantity": 20, "event_date": get_current_date()}]}
     update_order_response = client.put('/api/order/1', json=payload)
     assert update_order_response.status_code == 201
 
@@ -190,7 +191,7 @@ def test_create_service_with_not_unique_name(client):
 
 
 def test_create_order_with_absent_client(client):
-    payload = {"client_id": 2, 'services': [{
+    payload = {"client_id": 2, 'order_lines': [{
                     "service_id": 1,
                     "quantity": 1,
                     "event_date": get_current_date()
@@ -200,55 +201,55 @@ def test_create_order_with_absent_client(client):
 
 
 @pytest.mark.parametrize('query_string, number_of_clients, status_code',
-                         [(f'?date_1={get_date_that_was_two_days_ago()}&date_2={get_current_date()}', 2, 200),
-                          (f'?date_1={get_date_that_was_two_days_ago()}', 1, 200),
-                          (f'?date_2={get_current_date()}', 1, 200),
-                          (f'?date_2=2023-06-25', 0, 200),
+                         [(f'?date_from={get_date_that_was_two_days_ago()}&date_by={get_current_date()}', 2, 200),
+                          (f'?date_from={get_date_that_was_two_days_ago()}', 1, 200),
+                          (f'?date_by={get_current_date()}', 1, 200),
+                          (f'?date_by=2023-06-25', 0, 200),
                           ('', 0, 400),
-                          ('?date_1=2023-06-08&date_2=2023-06-01', 0, 400),
-                          ('?date_1=08-06-2023', 0, 400)
+                          ('?date_from=2023-06-08&date_by=2023-06-01', 0, 400),
+                          ('?date_from=08-06-2023', 0, 400)
                     ])
 def test_filtering_by_clients_created_dates(query_string, number_of_clients, status_code, client):
     create_client_response = client.post(f'/api/clients', json=new_client()['payload'])
     response = client.get(f'/api/clients_filtering{query_string}')
     response_body = response.json
     assert response.status_code == status_code
-    if 'error' not in response_body:
-        assert len(response_body) == number_of_clients
+    if 'message' not in response_body:
+        assert len(response_body.get('items', 0)) == number_of_clients
 
 
 @pytest.mark.parametrize('query_string, number_of_services, status_code',
-                         [('?price_1=50&price_2=110', 2, 200),
-                          ('?price_1=100', 1, 200),
-                          ('?price_2=50', 1, 200),
-                          ('?price_2=30', 0, 200),
+                         [('?price_from=50&price_by=110', 2, 200),
+                          ('?price_from=100', 1, 200),
+                          ('?price_by=50', 1, 200),
+                          ('?price_by=30', 0, 200),
                           ('', 0, 400),
-                          ('?price_1=100&price_2=50', 0, 400)])
+                          ('?price_from=100&price_by=50', 0, 400)])
 def test_filtering_by_services_prices(query_string, number_of_services, status_code, client):
     create_service_response = client.post(f'/api/services', json=new_service()['payload'])
     response = client.get(f'/api/services_filtering{query_string}')
     response_body = response.json
     assert response.status_code == status_code
-    if 'error' not in response_body:
-        assert len(response.json) == number_of_services
+    if 'message' not in response_body:
+        assert len(response_body.get('items', 0)) == number_of_services
 
 
 @pytest.mark.parametrize('query_string, number_of_orders, status_code',
-                         [(f'?date_1={get_date_that_was_two_days_ago()}&date_2={get_current_date()}', 2, 200),
-                          (f'?date_1={get_date_that_was_two_days_ago()}', 1, 200),
-                          (f'?date_2={get_current_date()}', 1, 200),
-                          (f'?date_2=2023-06-25', 0, 200),
+                         [(f'?date_from={get_date_that_was_two_days_ago()}&date_by={get_current_date()}', 2, 200),
+                          (f'?date_from={get_date_that_was_two_days_ago()}', 1, 200),
+                          (f'?date_by={get_current_date()}', 1, 200),
+                          (f'?date_by=2023-06-25', 0, 200),
                           ('', 0, 400),
-                          ('?date_1=2023-06-08&date_2=2023-06-01', 0, 400),
-                          ('?date_1=08-06-2023', 0, 400)
+                          ('?date_from=2023-06-08&date_by=2023-06-01', 0, 400),
+                          ('?date_from=08-06-2023', 0, 400)
                     ])
 def test_filtering_by_orders_created_dates(query_string, number_of_orders, status_code, client):
     create_order_response = client.post(f'/api/orders', json=new_order()['payload'])
     response = client.get(f'/api/orders_filtering{query_string}')
     response_body = response.json
     assert response.status_code == status_code
-    if 'error' not in response_body:
-        assert len(response_body) == number_of_orders
+    if 'message' not in response_body:
+        assert len(response_body.get('items', 0)) == number_of_orders
 
 
 @pytest.mark.parametrize('payload',
@@ -276,10 +277,10 @@ def test_create_service_with_mistake(client, payload):
 
 @pytest.mark.parametrize('payload',
                          [
-                            {"services": [{"service_id": 1, "quantity": 1, "event_date": "2023-06-28"}]},
+                            {"order_lines": [{"service_id": 1, "quantity": 1, "event_date": "2023-06-28"}]},
                             {"client_id": 1},
-                            {"client_id": 1, "services": []},
-                            {"client_id": 1, "services": [{"service_id": 1, "quantity": 1, "event_date": "2023-06-27"}]}
+                            {"client_id": 1, "order_lines": []},
+                            {"client_id": 1, "order_lines": [{"service_id": 1, "quantity": 1, "event_date": "2023-06-27"}]}
                          ])
 def test_create_order_with_mistake(client, payload):
     create_order_response = client.post('/api/orders', json=payload)

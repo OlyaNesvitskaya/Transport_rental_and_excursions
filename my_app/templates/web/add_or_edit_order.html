@@ -1,22 +1,30 @@
 {% extends 'base.html' %}
 {% block content %}
-<meta id="url-without-parameter-to-get-unit-and-price-for-order-line" data-url="{{context['script_url_without_parameter']}}">
 <div class="box">
     <a href={{url_for('web.get_orders_list')}}>Cancel</a>
-    <input type="submit" form="add_order" value="Save">
+    {% if context['add_line'] %}
+        <input type="submit" form="add_order" value="Save">
+    {% endif %}
 </div>
 
 <form action="" method="post" id="add_order">
     <div class="container3">
-        {{ context['form'].created_date.label() }}: {{ context['form'].created_date() }}
+        {{ context['form'].created_date.label() }}: {{ context['form'].created_date(readonly=True) }}
+
+        {% if context['title'] == "edit_order" %}
+        {{ context['form'].client_id.label() }}: {{ context['form'].client_id(class='order-read-only-field') }}
+        {% else %}
         {{ context['form'].client_id.label() }}: {{ context['form'].client_id() }}
+        {% endif %}
     </div>
     <div class="container4">
-        <div>
-            <img id="add-line" onclick="addRow('{{ context['unit'] }}', {{  context['price'] }}, {{  context['service_id']}})" src="{{ url_for('static', filename='images/plus.svg')}}" alt="Add new string" title="Add new line">
-        </div>
+        {% if context['add_line'] %}
+            <div>
+                <img id="add-line" src="{{ url_for('static', filename='images/plus.svg')}}" alt="Add new string" title="Add new line">
+            </div>
+        {% endif %}
       {{ context['form'].csrf_token }}
-      <table id="myTable">
+      <table id="orderTable">
           <thead>
           <tr>
              <th>Goods</th>
@@ -31,22 +39,20 @@
           <tbody id="order-lines">
                 {% for i in context['form'].order_line %}
                 <tr>
-                    <td>{{ i.form.service_id(oninput="getIndex(this.id)") }}</td>
-                    <td>{{ i.form.quantity(oninput="changeQuantity(this.id)") }}</td>
-                    {% if context['title'] == "edit_order" %}
-                        <td>{{ i.form.unit() }}</td>
-                        <td>{{ i.form.price() }}</td>
-                        <td>{{ i.form.order_line_price(class='order-line-price') }}</td>
-                    {% else %}
-                        <td>{{ i.form.unit(value=context['unit']) }}</td>
-                        <td>{{ i.form.price(value=context['price']) }}</td>
-                        <td>{{ i.form.order_line_price(class='order-line-price', value= context['price']) }}</td>
-                    {% endif %}
+                    <td>{{ i.form.service_id() }}</td>
+                    <td>{{ i.form.quantity()}}</td>
+                    <td>{{ i.form.unit() }}</td>
+                    <td>{{ i.form.price() }}</td>
+                    <td>{{ i.form.order_line_price() }}</td>
                     <td>{{ i.form.event_date() }}</td>
-                    <td><img id="action" onclick="deleteLine(this)" src="{{ url_for('static', filename='images/close.svg')}}" alt="Remove string" title="Remove chosen line"></td>
-                    {% if i.form.event_date.errors %}
-                    <td><span class="errors">{{ i.form.event_date.errors[0] }}</span></td>
+
+                    {% if context['title']=='add_order' or i.form.event_date.errors or i.form.event_date.data >= today_date  %}
+                    <td><img id="remove-order-line-enabled" src="{{ url_for('static', filename='images/close.svg')}}"
+                             alt="Remove string" title="Remove chosen line"></td>
+                    {% else %}
+                    <td><img id="remove-order-line-disabled" src="{{ url_for('static', filename='images/close.svg')}}" alt="Remove string" title="Remove chosen line"></td>
                     {% endif %}
+
                 </tr>
                 {% endfor %}
           </tbody>
@@ -54,16 +60,7 @@
         <div class="container5"><p>Order total price:<span id="order-total-price">0</span>UAN.</p></div>
     </div>
 </form>
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ context['message'] }}</li>
-        <a href="#">fgdrghdg</a>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
+
 
 
 {% endblock %}

@@ -1,24 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="box">
     <a href="{{url_for('web.add_service')}}">Add</a>
 </div>
 <form action="{{url_for('web.get_services_list')}}">
     <div class="container1">
-        <label for="price_1">price from:</label><input type="number" id="price_1" name="price_1">
-        <label for="price_2">by:</label><input type="number" id="price_2" name="price_2">
+        <label for="price_from">price from:</label><input type="number" id="price_from" name="price_from">
+        <label for="price_by">by:</label><input type="number" id="price_by" name="price_by">
         <input id='loading-button' type="image" src="static/images/loading_button.png" value="Отправить" alt="Загрузить">
     </div>
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for  message in messages %}
-                <p class="flashes">{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
 </form>
 {% if context['items_list'] %}
     <table>
@@ -39,7 +30,7 @@
                 <td>{{service['unit']}}</td>
                 <td>{{service['price']}}</td>
                 <td>{{service['number_of_orders']}}</td>
-                <td><a href="{{url_for('web.edit_service', service_id=service['id'])}}">Edit</a> <a href="{{url_for('web.delete_service', service_id=service['id'])}}">Delete</a></td>
+                <td><a href="{{url_for('web.edit_service', service_id=service['id'])}}">Edit</a> <a href="{{url_for('web.delete_service', service_id=service['id'], page=context['page'])}}">Delete</a></td>
             </tr>
         {% endfor %}
     </table>

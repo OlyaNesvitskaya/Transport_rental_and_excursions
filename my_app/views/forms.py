@@ -13,17 +13,22 @@ def validate_phone_number(form, phone_number):
 
 class AddClientForm(FlaskForm):
     name = StringField("Name: ", validators=[DataRequired(), Length(min=5, max=45)])
+
     phone_number = StringField("Phone number: ", validators=[DataRequired(), Length(min=10, max=10),
                                                              validate_phone_number])
+
     email = StringField("Email: ", validators=[DataRequired(), Length(min=7, max=30)])
 
 
 class AddServiceForm(FlaskForm):
 
     name = StringField("Name: ", validators=[DataRequired(), Length(min=5, max=100)])
-    description = TextAreaField("Description: ", render_kw={'style': 'width: 400px; height:100px;'},
+
+    description = TextAreaField("Description: ",
                                 validators=[DataRequired(), Length(min=5, max=1000)])
+
     unit = StringField("Unit: ", validators=[DataRequired(), Length(min=3, max=20)])
+
     price = IntegerField("Price: ", validators=[DataRequired(), NumberRange(min=1)])
 
 
@@ -38,13 +43,20 @@ class AddOrderForm(FlaskForm):
     class Meta:
         csrf = False
 
+    service_id = SelectField("Goods", coerce=int, default=0,
+                             choices=[(0, 'Не выбрано')], render_kw={'class': 'service_id'})
 
-    service_id = SelectField("Goods")
-    quantity = IntegerField("Number: ", default=1, validators=[DataRequired(), NumberRange(min=1)])
+    quantity = IntegerField("Number: ", default=1, validators=[DataRequired(), NumberRange(min=1)],
+                            render_kw={'class': 'quantity'})
+
     unit = StringField("Unit", render_kw={'readonly': True})
+
     price = IntegerField("Price", render_kw={'readonly': True})
-    order_line_price = IntegerField("Total price")
-    event_date = DateField("Event_date: ", default=date.today(), format='%Y-%m-%d', validators=[DataRequired()])
+
+    order_line_price = IntegerField("Total price", render_kw={'readonly': True, 'class': 'order-line-price'})
+
+    event_date = DateField("Event_date: ", default=date.today(),
+                           format='%Y-%m-%d', validators=[DataRequired()])
 
     def validate_event_date(form, field):
         if field.data < form.meta.created_date:

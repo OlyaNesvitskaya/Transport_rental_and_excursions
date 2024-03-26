@@ -1,6 +1,0 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<h1>{{context['message']}}</h1>
-  <a href="{{ url_for('web.' + context['main_page'])}}"><p>Click Here</a>To go to the previous page</p>
-{% endblock %}

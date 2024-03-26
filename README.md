@@ -1,8 +1,9 @@
 # Transport_rental_and_excursions
+The project consists of two independent applications.
+One of them is the REST API, which implements business logic on top of the DBMS. Other provides an
+interface for web users, which allows users to record information about services, clients and orders.
 
-  There is a describing of project in folder documentation in file "Specification_Transport_rental_and_excursions.md"
-
-# Quick Start
+  # Quick Start
 ### Clone the repo:
 * $ git clone https://github.com/OlyaNesvitskaya/transport_rental_and_excursions.git
 * $ cd transport_rental_and_excursion
@@ -16,6 +17,9 @@
 Navigate to http://localhost:5000/api/clients to see page of all clients through API  
 Navigate to http://localhost:5009/my_app/clients to see page of all clients through APP
 
+### Run tests in api container:
+* docker exec -it <*CONTAINER ID*> /bin/bash
+* python -m pytest
 
 # Application Structure:
 

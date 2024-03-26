@@ -13,7 +13,7 @@ class Client(db.Model):
     phone_number = db.Column(db.String(12), nullable=False, unique=True)
     email = db.Column(db.String(40), nullable=False)
     created_date = db.Column(db.Date, nullable=False, default=date.today)
-    orders = relationship('Order')
+    orders = relationship('Order', lazy='joined')
 
     def __repr__(self):
         return f'<Client {self.name}>'
@@ -26,7 +26,7 @@ class Service(db.Model):
     description = db.Column(db.Text(1000), nullable=False)
     unit = db.Column(db.String(20), nullable=False)
     price = db.Column(db.Integer, nullable=False)
-    orders = relationship('Order_line')
+    orders = relationship('Order_line', lazy='joined')
 
     @hybrid_property
     def number_of_orders(self):
@@ -46,7 +46,9 @@ class Order_line(db.Model):
     order_line_price = column_property(select(quantity * Service.price)
                                        .where(Service.id == service_id)
                                        .correlate_except(Service)
-                                       .scalar_subquery())
+                                       .scalar_subquery(),
+                                        deferred=True
+                                       )
 
 
 class Order(db.Model):
@@ -57,9 +59,11 @@ class Order(db.Model):
     order_lines = relationship('Order_line', backref="order", cascade="all, delete-orphan")
     client = relationship('Client', viewonly=True)
     total_order_price = column_property(select(func.sum(Order_line.order_line_price))
-                                       .where(Order_line.order_id == id)
-                                       .correlate_except(Order_line)
-                                       .scalar_subquery())
+                                        .where(Order_line.order_id == id)
+                                        .correlate_except(Order_line)
+                                        .scalar_subquery(),
+                                        deferred=True
+                                       )
 
     def __repr__(self):
         return f'<Order №{self.id}, client_id={self.client_id}>'
