@@ -17,7 +17,6 @@ from ..log import logger
 class ServicesList(Resource):
     @marshal_with(resource_with_pagination | {'items': fields.Nested(resource_fields_for_services)})
     def get(self):
-        logger.info(f"Request method:{request.method}, path:{request.full_path}")
         page = request.args.get('page', 1)
         per_page = request.args.get('per_page', 10)
         valid_page, valid_per_page = validate_page_and_per_page(page, per_page)
@@ -56,7 +55,7 @@ class ServiceRecord(Resource):
         return change_record(Service, service_id, args), 201
 
     def delete(self, service_id):
-        return delete_record(Service, service_id), 204
+        return delete_record(request, Service, service_id), 204
 
 
 class FilteringServicesList(Resource):

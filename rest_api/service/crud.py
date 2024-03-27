@@ -4,6 +4,7 @@ from typing import Union, Type
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
+from rest_api.log import logger
 from rest_api.models.models import Client, Service, Order, Order_line, db
 from rest_api.rest.errors import InvalidAPIUsage
 

@@ -6,7 +6,7 @@ interface for web users, which allows users to record information about services
   # Quick Start
 ### Clone the repo:
 * $ git clone https://github.com/OlyaNesvitskaya/transport_rental_and_excursions.git
-* $ cd transport_rental_and_excursion
+* $ cd transport_rental_and_excursion/
 
 
 ### Run the project:
@@ -15,7 +15,7 @@ interface for web users, which allows users to record information about services
 
 
 Navigate to http://localhost:5000/api/clients to see page of all clients through API  
-Navigate to http://localhost:5009/my_app/clients to see page of all clients through APP
+Navigate to https://localhost:5009/my_app/clients to see page of all clients through APP
 
 ### Run tests in api container:
 * docker exec -it <*CONTAINER ID*> /bin/bash

@@ -58,7 +58,7 @@ function recountOrderLinePriceWhenChangingService(service_id_cell, row_number){
     let total_price_cell = document.getElementById('order_line-' + row_number + '-order_line_price');
 
     let selected_goods = service_id_cell.value;
-    let url = "http://127.0.0.1:5009/my_app/unit_and_price/" + selected_goods;
+    let url = "https://127.0.0.1:5009/my_app/unit_and_price/" + selected_goods;
 
     fetch(url).then(function(response) {
         response.json().then(function(data) {

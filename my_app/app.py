@@ -27,7 +27,7 @@ def create_app(name='web_app', config_class=config.Config):
 
     csp = {
         'default-src': [
-            '\'self\''
+            '\'self\'',
         ],
         'script-src': [
             '\'self\'',
@@ -38,7 +38,8 @@ def create_app(name='web_app', config_class=config.Config):
             'https://cdn.jsdelivr.net',
             'https://maxcdn.bootstrapcdn.com'
         ],
-        'font-src': ['\'self\'', 'https://maxcdn.bootstrapcdn.com']
+        'font-src': ['\'self\'', 'https://maxcdn.bootstrapcdn.com'],
+        'connect-src': '\'self\''
     }
 
     hsts = {
